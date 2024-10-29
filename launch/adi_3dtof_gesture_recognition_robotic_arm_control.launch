@@ -1,0 +1,7 @@
+<!-- -*- mode: XML -*- -->
+<launch>
+    <node pkg="adi_3dtof_gesture_recognition" name="adi_3dtof_gesture_recognition_robotic_arm_control_node" type="adi_3dtof_gesture_recognition_robotic_arm_control_node.py" output="screen" />
+</launch>
+
+
+

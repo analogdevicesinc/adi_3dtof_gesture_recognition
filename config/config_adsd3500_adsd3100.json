@@ -1,0 +1,4 @@
+{
+    "depthIni": "./config/RawToDepthAdsd3500_lr-qnative.ini",
+    "fsyncMode": "1"
+}

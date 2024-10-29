@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Arguments -->
+  <arg name="arg_input_topic_prefix" default="cam1"/>
+  <arg name="arg_enable_point_cloud" default="false"/>
+
+  <!-- Node -->
+  <node pkg="adi_3dtof_gesture_recognition" type="adi_3dtof_gesture_recognition_host_node.py" name="adi_3dtof_gesture_recognition_host_node" output="screen" required="true" >
+    <param name="input_topic_prefix" value="$(arg arg_input_topic_prefix)"/>
+    <param name="enable_point_cloud" value="$(arg arg_enable_point_cloud)"/>
+  </node>
+  
+    <!-- Launch RViz-->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find adi_3dtof_gesture_recognition)/rviz/adi_3dtof_gesture_recognition.rviz">
+  </node>
+
+</launch>
+

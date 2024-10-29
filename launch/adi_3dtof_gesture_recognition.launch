@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Arguments -->
+
+  <!-- Parameters related to input output -->
+  <!-- rostopic, file, adtf31xx -->
+  <arg name="arg_input_type" default="adtf31xx"/>
+  <!-- Set the camera height -->
+  <arg name="arg_camera_height_from_floor_in_mtr"  default="1.0"/>
+  <arg name="arg_sensor_id" default="$(find adi_3dtof_gesture_recognition)/../adi_3dtof_gesture_recognition_video_files/adi_3dtof_gesture_recognition_video_1.bin"/>
+  <!-- rostopic, rostopic_file -->
+  <arg name="arg_output_type" default="rostopic"/>
+
+
+  <!-- Parameters related to the algorithm -->
+  <!-- 10 -->
+  <arg name="arg_ros_loop_rate" value="10" />
+  <!-- true/false -->
+  <arg name="arg_disable_algorithm" value="false" />
+  <!--Percentage of pixels to be removed from all 4 sides in image (0.2) -->
+  <arg name="arg_exclusion_border_percentage" default="0.2"/>
+  <!-- depthcnngestnet -->
+  <arg name="arg_model_type" default="depthcnngestnet"/>
+  <arg name="arg_model_file" default="$(find adi_3dtof_gesture_recognition)/weights/gesture_recognition_cnn_2_stage_model_v2.tflite"/>
+
+  <!-- Hand Confidence threshold value default(0.5) -->
+  <arg name="arg_hand_confidence_threshold" value="0.5" />
+  <!-- Gesture Confidence threshold value default(0.5) -->
+  <arg name="arg_gesture_confidence_threshold" value="0.5" />
+
+
+  <!-- Parameters related to input image quality -->
+  <!-- Frame Type -->
+  <arg name="arg_frame_type" value="lr-qnative" />
+  <!-- AB threshold value default(25) -->
+  <arg name="arg_ab_threshold" value="25" />
+  <!-- Confidence threshold value default(10) -->
+  <arg name="arg_confidence_threshold" value="10" />
+  <!-- Configuration fie name of ToF SDK -->
+  <arg name="arg_config_file_name_of_tof_sdk" value="$(find adi_3dtof_gesture_recognition)/config/config_adsd3500_adsd3100.json" />
+
+  <!-- true/false -->
+  <arg name="arg_enable_output_image_flip" value="true" />
+
+  <!-- TF related parametrs -->
+  <!--  map
+        ^
+        |
+    camera_device
+        ^
+        |
+    camera_optical
+  -->
+  <!-- Adjust the prefix based on the actual value -->
+  <arg name="arg_ns_prefix_cam" default="cam1" />
+  <!--  Camera frame name (forward is +ve X axis) -->
+  <arg name="arg_cam_base_frame" default="$(eval arg('arg_ns_prefix_cam') + '_adtf31xx')" />
+  <!--  Camera optical frame name (forward is +ve Z axis) -->
+  <arg name="arg_cam_base_frame_optical" default="$(eval arg('arg_ns_prefix_cam') + '_adtf31xx_optical')" />
+  <!--  Camera's parent frame name -->
+  <arg name="arg_cam_parent_frame" value="map"/>
+  <!--  Camera's child frame name -->
+  <arg name="arg_cam_child_frame" value="$(arg arg_cam_base_frame_optical)"/>
+
+  <!--  Camera position wrt map  -->
+  <!--  Camera position X -->
+  <arg name="arg_cam_pos_x" value="0.0"/>
+  <!--  Camera position Y -->
+  <arg name="arg_cam_pos_y" value="0.0"/>
+  <!--  Camera position Z -->
+  <arg name="arg_cam_pos_z" value="$(arg arg_camera_height_from_floor_in_mtr)"/>
+  <!-- Side Tilt: Left side down:-ve  Right side down: +ve -->
+  <arg name="arg_cam_roll" value="0"/>
+  <!-- Vertical Tilt, down +ve radian, up -ve radian
+      Restriction on Pitch, Accepted Range (-1.5708, 1.5708)
+      If |Pitch| > 1.57, output from TF transform should be taken as cam_pitch = 3.14 - extracted pitch_angle
+  -->
+  <arg name="arg_cam_pitch" value="0"/>
+  <!-- Horizontal Tilt: Left: +ve, Right: -ve -->
+  <arg name="arg_cam_yaw" value="0"/>
+
+  <!-- Fixed conversion - Optical Frame: X-Right,Y-Down,Z-Front to Base Frame : X-Front,Y-Left,Z-Up conversion -->
+  <arg name="arg_cam_optical_to_base_roll" value="-1.57"/>
+  <arg name="arg_cam_optical_to_base_pitch" value="0"/>
+  <arg name="arg_cam_optical_to_base_yaw" value="-1.57"/>
+
+
+  <!-- Gesture Recognition Node -->
+  <node pkg="adi_3dtof_gesture_recognition" type="adi_3dtof_gesture_recognition_node.py" name="adi_3dtof_gesture_recognition_node" output="screen" required="true" >
+    <param name="camera_link" value="$(arg arg_cam_base_frame)"/>
+    <param name="optical_camera_link" value="$(arg arg_cam_base_frame_optical)"/>
+    <param name="ros_loop_rate" value="$(arg arg_ros_loop_rate)"/>
+
+    <param name="input_type" value="$(arg arg_input_type)"/>
+    <param name="sensor_id" value="$(arg arg_sensor_id)"/>
+    <param name="output_type" value="$(arg arg_output_type)"/>
+    <param name="output_topic_prefix" value="$(arg arg_ns_prefix_cam)"/>
+    
+
+    <param name="disable_algorithm" value="$(arg arg_disable_algorithm)"/>
+    <param name="exclusion_border_percentage" value="$(arg arg_exclusion_border_percentage)"/>
+    <param name="model_type" value="$(arg arg_model_type)"/>
+    <param name="model_file" value="$(arg arg_model_file)"/>
+
+    <param name="hand_confidence_threshold" value="$(arg arg_hand_confidence_threshold)"/>
+    <param name="gesture_confidence_threshold" value="$(arg arg_gesture_confidence_threshold)"/>
+
+    <param name="frame_type" value="$(arg arg_frame_type)"/>
+    <param name="ab_threshold" value="$(arg arg_ab_threshold)"/>
+    <param name="confidence_threshold" value="$(arg arg_confidence_threshold)" />
+    <param name="config_file_name_of_tof_sdk" value="$(arg arg_config_file_name_of_tof_sdk)" /> 
+    <param name="enable_output_image_flip" value="$(arg arg_enable_output_image_flip)" /> 
+  </node>
+  
+  <!-- Transform of Camera Optical and Camera Base frame, position is same as camera base, only change in the rotation -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="$(eval arg('arg_cam_base_frame_optical') + '_tf')" 
+          args="0 0 0 $(arg arg_cam_optical_to_base_yaw) $(arg arg_cam_optical_to_base_pitch) $(arg arg_cam_optical_to_base_roll) $(arg arg_cam_base_frame) $(arg arg_cam_child_frame)" />
+
+  <!-- Transform for Camera Base frame and MAP -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="$(eval arg('arg_cam_base_frame') + '_tf')" 
+          args="$(arg arg_cam_pos_x) $(arg arg_cam_pos_y) $(arg arg_cam_pos_z) $(arg arg_cam_yaw) $(arg arg_cam_pitch) $(arg arg_cam_roll) $(arg arg_cam_parent_frame) $(arg arg_cam_base_frame)" />
+
+</launch>
