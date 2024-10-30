@@ -167,7 +167,6 @@ include_directories(
 catkin_install_python(PROGRAMS
    src/adi_3dtof_gesture_recognition_node.py
    src/adi_3dtof_gesture_recognition_host_node.py
-   src/adi_3dtof_gesture_recognition_single_thread_node.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
