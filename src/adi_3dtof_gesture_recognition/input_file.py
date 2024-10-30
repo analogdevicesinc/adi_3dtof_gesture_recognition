@@ -238,8 +238,8 @@ class InputFile:
 
             self._num_of_frames_read += 1
 
-            # Adding some sleep to simulate 2 frame/sec processing.
-            time.sleep(0.5)
+            # Adding some sleep to simulate 5 frame/sec processing.
+            time.sleep(0.2)
 
             return input_frame_info
 
