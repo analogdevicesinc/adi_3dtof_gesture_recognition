@@ -23,8 +23,8 @@ The image below shows the connection diagram of the setup :
 
 > :memo:
 > **ADSD3500 Firmware :**  
-> Make sure the sensor is flashed with the release 5.2.0 of ADSD3500 Firmware
-  >**:warning: <span style="color:red"> ADI 3DToF Gesture Recognition does not support CR/DV series.**</span> 
+> Make sure the sensor is flashed with the release 5.2.0 of ADSD3500 Firmware  
+> **:warning: <span style="color:red"> ADI 3DToF Gesture Recognition does not support CR/DV series.**</span>  
 > 
 > Follow the below instructions to read the FW version  
 >1. Login to the EVAL-ADTF3175D-NXZ module using ssh. On the Host machine open the “Terminal” and run the following command to ssh to the device.  
